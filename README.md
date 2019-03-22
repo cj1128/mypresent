@@ -10,7 +10,7 @@
 
 ## Format
 
-slide format
+### slide format
 
 title
 [subtitle]
@@ -19,9 +19,9 @@ title
 [misc info]
 [sections]
 
-section format
-
-* title
+`*` title
+`: ` speaker note
+`#` comments
 
 ## Static Resource
 
@@ -36,7 +36,3 @@ section format
 - notes.css
 - slides.js
 - styles.css
-
-## Modifications
-
-- remove `article.tmpl`

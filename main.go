@@ -16,7 +16,7 @@ var (
 	host         string
 	port         int
 	resourcePath string
-	contentPath  string
+	contentBase  string
 )
 
 func parseFlags() {
@@ -37,7 +37,7 @@ func parseFlags() {
 	kingpin.Flag("content", "presentation content path").
 		Short('c').
 		Default(".").
-		StringVar(&contentPath)
+		StringVar(&contentBase)
 
 	kingpin.Flag("play", "enable playground").
 		Default("true").
@@ -69,6 +69,8 @@ func main() {
 		http.ServeContent(w, r, name, time.Now(), bytes.NewReader(content))
 	})
 
+	http.HandleFunc("/", mainHandler)
+
 	log.Printf("server started, host: %s, port: %d", host, port)
 
 	if present.NotesEnabled {
@@ -76,4 +78,17 @@ func main() {
 	}
 
 	log.Fatal(http.ListenAndServe(fmt.Sprintf("%s:%d", host, port), nil))
+}
+
+func mainHandler(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path == "/favicon.ico" {
+		http.NotFound(w, r)
+		return
+	}
+
+	if r.URL.Path == "/" || r.URL.Path == "/index.html" {
+		handleIndex(w, r)
+		return
+	}
+
 }

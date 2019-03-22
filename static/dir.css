@@ -1,10 +1,9 @@
-/* copied from $GOROOT/doc/style.css */
-
 body {
 	margin: 0;
 	font-family: Helvetica, Arial, sans-serif;
 	font-size: 16px;
 }
+
 pre,
 code {
 	font-family: Menlo, monospace;

@@ -4,8 +4,8 @@
 // static/article.css
 // static/dir.css
 // static/dir.js
-// static/dir.tmpl
 // static/favicon.ico
+// static/index.tmpl
 // static/jquery-ui.js
 // static/notes.css
 // static/notes.js
@@ -108,10 +108,10 @@ func dirJs() (*asset, error) {
 	return a, err
 }
 
-// dirTmpl reads file data from disk. It returns an error on failure.
-func dirTmpl() (*asset, error) {
-	path := "/Users/cj/Documents/Work/mypresent/static/dir.tmpl"
-	name := "dir.tmpl"
+// faviconIco reads file data from disk. It returns an error on failure.
+func faviconIco() (*asset, error) {
+	path := "/Users/cj/Documents/Work/mypresent/static/favicon.ico"
+	name := "favicon.ico"
 	bytes, err := bindataRead(path, name)
 	if err != nil {
 		return nil, err
@@ -126,10 +126,10 @@ func dirTmpl() (*asset, error) {
 	return a, err
 }
 
-// faviconIco reads file data from disk. It returns an error on failure.
-func faviconIco() (*asset, error) {
-	path := "/Users/cj/Documents/Work/mypresent/static/favicon.ico"
-	name := "favicon.ico"
+// indexTmpl reads file data from disk. It returns an error on failure.
+func indexTmpl() (*asset, error) {
+	path := "/Users/cj/Documents/Work/mypresent/static/index.tmpl"
+	name := "index.tmpl"
 	bytes, err := bindataRead(path, name)
 	if err != nil {
 		return nil, err
@@ -308,8 +308,8 @@ var _bindata = map[string]func() (*asset, error){
 	"article.css":  articleCss,
 	"dir.css":      dirCss,
 	"dir.js":       dirJs,
-	"dir.tmpl":     dirTmpl,
 	"favicon.ico":  faviconIco,
+	"index.tmpl":   indexTmpl,
 	"jquery-ui.js": jqueryUiJs,
 	"notes.css":    notesCss,
 	"notes.js":     notesJs,
@@ -363,8 +363,8 @@ var _bintree = &bintree{nil, map[string]*bintree{
 	"article.css":  &bintree{articleCss, map[string]*bintree{}},
 	"dir.css":      &bintree{dirCss, map[string]*bintree{}},
 	"dir.js":       &bintree{dirJs, map[string]*bintree{}},
-	"dir.tmpl":     &bintree{dirTmpl, map[string]*bintree{}},
 	"favicon.ico":  &bintree{faviconIco, map[string]*bintree{}},
+	"index.tmpl":   &bintree{indexTmpl, map[string]*bintree{}},
 	"jquery-ui.js": &bintree{jqueryUiJs, map[string]*bintree{}},
 	"notes.css":    &bintree{notesCss, map[string]*bintree{}},
 	"notes.js":     &bintree{notesJs, map[string]*bintree{}},
