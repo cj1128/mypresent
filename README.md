@@ -26,7 +26,7 @@ title
 ## Static Resource
 
 - action.tmpl
-- dir.tmpl
+- index.tmpl
 - slide.tmpl
 
 - dir.css

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -32,9 +31,7 @@ func handleIndex(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// templ
-	buf, _ := json.MarshalIndent(data, "", "  ")
-	indexTemplate.Execute(w, string(buf))
+	indexTemplate.Execute(w, data)
 }
 
 // dir is relative to `contentBase`

@@ -3,8 +3,8 @@
 // static/action.tmpl
 // static/article.css
 // static/dir.css
-// static/dir.js
 // static/favicon.ico
+// static/index.css
 // static/index.tmpl
 // static/jquery-ui.js
 // static/notes.css
@@ -90,10 +90,10 @@ func dirCss() (*asset, error) {
 	return a, err
 }
 
-// dirJs reads file data from disk. It returns an error on failure.
-func dirJs() (*asset, error) {
-	path := "/Users/cj/Documents/Work/mypresent/static/dir.js"
-	name := "dir.js"
+// faviconIco reads file data from disk. It returns an error on failure.
+func faviconIco() (*asset, error) {
+	path := "/Users/cj/Documents/Work/mypresent/static/favicon.ico"
+	name := "favicon.ico"
 	bytes, err := bindataRead(path, name)
 	if err != nil {
 		return nil, err
@@ -108,10 +108,10 @@ func dirJs() (*asset, error) {
 	return a, err
 }
 
-// faviconIco reads file data from disk. It returns an error on failure.
-func faviconIco() (*asset, error) {
-	path := "/Users/cj/Documents/Work/mypresent/static/favicon.ico"
-	name := "favicon.ico"
+// indexCss reads file data from disk. It returns an error on failure.
+func indexCss() (*asset, error) {
+	path := "/Users/cj/Documents/Work/mypresent/static/index.css"
+	name := "index.css"
 	bytes, err := bindataRead(path, name)
 	if err != nil {
 		return nil, err
@@ -307,8 +307,8 @@ var _bindata = map[string]func() (*asset, error){
 	"action.tmpl":  actionTmpl,
 	"article.css":  articleCss,
 	"dir.css":      dirCss,
-	"dir.js":       dirJs,
 	"favicon.ico":  faviconIco,
+	"index.css":    indexCss,
 	"index.tmpl":   indexTmpl,
 	"jquery-ui.js": jqueryUiJs,
 	"notes.css":    notesCss,
@@ -362,8 +362,8 @@ var _bintree = &bintree{nil, map[string]*bintree{
 	"action.tmpl":  &bintree{actionTmpl, map[string]*bintree{}},
 	"article.css":  &bintree{articleCss, map[string]*bintree{}},
 	"dir.css":      &bintree{dirCss, map[string]*bintree{}},
-	"dir.js":       &bintree{dirJs, map[string]*bintree{}},
 	"favicon.ico":  &bintree{faviconIco, map[string]*bintree{}},
+	"index.css":    &bintree{indexCss, map[string]*bintree{}},
 	"index.tmpl":   &bintree{indexTmpl, map[string]*bintree{}},
 	"jquery-ui.js": &bintree{jqueryUiJs, map[string]*bintree{}},
 	"notes.css":    &bintree{notesCss, map[string]*bintree{}},

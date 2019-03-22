@@ -3,14 +3,40 @@
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
   <title>Slides</title>
-  <!-- <link type="text/css" rel="stylesheet" href="/static/dir.css"> -->
-  <script src="/static/dir.js"></script>
+  <link rel="icon" href="data:;base64,=">
+  <link type="text/css" rel="stylesheet" href="/static/index.css">
 </head>
 <body>
-  <pre>
-    <code>
-      {{ . }}
-    </code>
-  </pre>
+  <main>
+    {{ define "indexblock" }}
+      {{ if . }}
+        <section>
+          {{ if ne .Name "." }}
+            <h2>{{ .Name }}</h2>
+          {{ end }}
+
+          {{ if .Slides }}
+            <ul>
+              {{ range .Slides }}
+                <li>
+                  <a href="{{ .Path }}">
+                    {{ .Name }}
+                  </a>
+                </li>
+              {{ end }}
+            </ul>
+          {{ end }}
+
+          {{ range .Children }}
+            {{ template "indexblock" . }}
+          {{ end }}
+        {{ end }}
+      </section>
+    {{ end }}
+
+    <h1>My Slides</h1>
+
+    {{ template "indexblock" . }}
+  </main>
 </body>
 </html>

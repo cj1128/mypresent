@@ -1,0 +1,39 @@
+body {
+  margin: 0;
+  font-size: 16px;
+  font-family: Helvetica, PingFang SC, Arial, sans-serif;
+}
+
+main {
+  width: 600px;
+  margin: auto;
+}
+
+h1 {
+  color: #375EAB;
+  font-size: 25px;
+  margin: 30px 0;
+}
+
+ul {
+  margin-bottom: 30px;
+}
+
+main > section > ul {
+  padding-left: 18px;
+}
+
+a {
+  color: #375EAB;
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+
+section > h2 {
+  background: #E0EBF5;
+  color: #375EAB;
+  font-size: 20px;
+  padding: 5px 10px;
+}

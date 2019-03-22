@@ -81,6 +81,9 @@ func main() {
 }
 
 func mainHandler(w http.ResponseWriter, r *http.Request) {
+	// temp
+	initTemplates(resourcePath)
+
 	if r.URL.Path == "/favicon.ico" {
 		http.NotFound(w, r)
 		return
