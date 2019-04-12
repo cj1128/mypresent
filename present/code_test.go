@@ -12,10 +12,6 @@ import (
 )
 
 func TestParseCode(t *testing.T) {
-	// Enable play but revert the change at the end.
-	defer func(play bool) { PlayEnabled = play }(PlayEnabled)
-	PlayEnabled = true
-
 	helloTest := []byte(`
 package main
 
@@ -25,6 +21,7 @@ func main() {
 	fmt.Println("hello, test")
 }
 `)
+
 	helloTestHTML := template.HTML(`
 <pre><span num="2">package main</span>
 <span num="3"></span>
@@ -35,6 +32,7 @@ func main() {
 <span num="8">}</span>
 </pre>
 `)
+
 	helloTestHL := []byte(`
 package main
 
@@ -44,6 +42,7 @@ func main() { // HLfunc
 	fmt.Println("hello, test") // HL
 }
 `)
+
 	highlight := func(h template.HTML, s string) template.HTML {
 		return template.HTML(strings.Replace(string(h), s, "<b>"+s+"</b>", -1))
 	}

@@ -41,7 +41,7 @@ func scanDir(dir string) (*indexData, error) {
 		Children: make([]*indexData, 0),
 	}
 
-	files, err := ioutil.ReadDir(path.Join(contentBase, dir))
+	files, err := ioutil.ReadDir(path.Join(opts.contentBase, dir))
 
 	if err != nil {
 		return nil, errors.Wrapf(err, "could not read dir: %s", dir)
@@ -76,7 +76,7 @@ func scanDir(dir string) (*indexData, error) {
 
 // fp is relative to contentBase
 func parseIndexSlide(fp string) (*indexSlide, error) {
-	f, err := os.Open(path.Join(contentBase, fp))
+	f, err := os.Open(path.Join(opts.contentBase, fp))
 
 	if err != nil {
 		return nil, errors.Wrapf(err, "could not open file: %s", fp)

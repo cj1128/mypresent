@@ -12,40 +12,37 @@ import (
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
-var (
+var opts struct {
 	host         string
 	port         int
 	resourcePath string
 	contentBase  string
-)
+}
 
 func parseFlags() {
 	kingpin.Flag("host", "server host").
-		Short('h').
 		Default("127.0.0.1").
-		StringVar(&host)
+		StringVar(&opts.host)
 
 	kingpin.Flag("port", "server port").
 		Short('p').
 		Default("3999").
-		IntVar(&port)
+		IntVar(&opts.port)
 
 	kingpin.Flag("resource", "static resource path, if not provided, use builtin resource").
 		Short('r').
-		StringVar(&resourcePath)
+		StringVar(&opts.resourcePath)
 
 	kingpin.Flag("content", "presentation content path").
 		Short('c').
 		Default(".").
-		StringVar(&contentBase)
-
-	kingpin.Flag("play", "enable playground").
-		Default("true").
-		BoolVar(&present.PlayEnabled)
+		StringVar(&opts.contentBase)
 
 	kingpin.Flag("notes", "enable presenter notes (press 'N' to display").
 		Default("false").
 		BoolVar(&present.NotesEnabled)
+
+	kingpin.HelpFlag.Short('h')
 
 	kingpin.Parse()
 }
@@ -53,7 +50,7 @@ func parseFlags() {
 func main() {
 	parseFlags()
 
-	if err := initTemplates(resourcePath); err != nil {
+	if err := initTemplates(opts.resourcePath); err != nil {
 		log.Fatalf("failed to parse templates: %v", err)
 	}
 
@@ -71,18 +68,18 @@ func main() {
 
 	http.HandleFunc("/", mainHandler)
 
-	log.Printf("server started, host: %s, port: %d", host, port)
+	log.Printf("server started, host: %s, port: %d", opts.host, opts.port)
 
 	if present.NotesEnabled {
 		log.Println("notes are enabled, press 'N' from the browser to display them.")
 	}
 
-	log.Fatal(http.ListenAndServe(fmt.Sprintf("%s:%d", host, port), nil))
+	log.Fatal(http.ListenAndServe(fmt.Sprintf("%s:%d", opts.host, opts.port), nil))
 }
 
 func mainHandler(w http.ResponseWriter, r *http.Request) {
-	// temp
-	initTemplates(resourcePath)
+	// temp, refresh templates everytime
+	initTemplates(opts.resourcePath)
 
 	if r.URL.Path == "/favicon.ico" {
 		http.NotFound(w, r)

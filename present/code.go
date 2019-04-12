@@ -15,27 +15,16 @@ import (
 	"strings"
 )
 
-// PlayEnabled specifies whether runnable playground snippets should be
-// displayed in the present user interface.
-var PlayEnabled = false
-
-// TODO(adg): replace the PlayEnabled flag with something less spaghetti-like.
-// Instead this will probably be determined by a template execution Context
-// value that contains various global metadata required when rendering
-// templates.
-
 // NotesEnabled specifies whether presenter notes should be displayed in the
 // present user interface.
 var NotesEnabled = false
 
 func init() {
 	Register("code", parseCode)
-	Register("play", parseCode)
 }
 
 type Code struct {
 	Text     template.HTML
-	Play     bool   // runnable code
 	Edit     bool   // editable code
 	FileName string // file name
 	Ext      string // file extension
@@ -44,18 +33,17 @@ type Code struct {
 
 func (c Code) TemplateName() string { return "code" }
 
-// The input line is a .code or .play entry with a file name and an optional HLfoo marker on the end.
+// The input line is a .code entry with a file name and an optional HLfoo marker on the end.
 // Anything between the file and HL (if any) is an address expression, which we treat as a string here.
 // We pick off the HL first, for easy parsing.
 var (
 	highlightRE = regexp.MustCompile(`\s+HL([a-zA-Z0-9_]+)?$`)
 	hlCommentRE = regexp.MustCompile(`(.+) // HL(.*)$`)
-	codeRE      = regexp.MustCompile(`\.(code|play)\s+((?:(?:-edit|-numbers)\s+)*)([^\s]+)(?:\s+(.*))?$`)
+	codeRE      = regexp.MustCompile(`\.code\s+((?:(?:-edit|-numbers)\s+)*)([^\s]+)(?:\s+(.*))?$`)
 )
 
 // parseCode parses a code present directive. Its syntax:
 //   .code [-numbers] [-edit] <filename> [address] [highlight]
-// The directive may also be ".play" if the snippet is executable.
 func parseCode(ctx *Context, sourceFile string, sourceLine int, cmd string) (Elem, error) {
 	cmd = strings.TrimSpace(cmd)
 
@@ -72,16 +60,15 @@ func parseCode(ctx *Context, sourceFile string, sourceLine int, cmd string) (Ele
 	// Parse the remaining command line.
 	// Arguments:
 	// args[0]: whole match
-	// args[1]:  .code/.play
+	// args[1]:  .code
 	// args[2]: flags ("-edit -numbers")
 	// args[3]: file name
 	// args[4]: optional address
 	args := codeRE.FindStringSubmatch(cmd)
 	if len(args) != 5 {
-		return nil, fmt.Errorf("%s:%d: syntax error for .code/.play invocation", sourceFile, sourceLine)
+		return nil, fmt.Errorf("%s:%d: syntax error for .code invocation", sourceFile, sourceLine)
 	}
-	command, flags, file, addr := args[1], args[2], args[3], strings.TrimSpace(args[4])
-	play := command == "play" && PlayEnabled
+	_, flags, file, addr := args[1], args[2], args[3], strings.TrimSpace(args[4])
 
 	// Read in code file and (optionally) match address.
 	filename := filepath.Join(filepath.Dir(sourceFile), file)
@@ -118,19 +105,12 @@ func parseCode(ctx *Context, sourceFile string, sourceLine int, cmd string) (Ele
 		Numbers: strings.Contains(flags, "-numbers"),
 	}
 
-	// Include before and after in a hidden span for playground code.
-	if play {
-		data.Prefix = textBytes[:lo]
-		data.Suffix = textBytes[hi:]
-	}
-
 	var buf bytes.Buffer
 	if err := codeTemplate.Execute(&buf, data); err != nil {
 		return nil, err
 	}
 	return Code{
 		Text:     template.HTML(buf.String()),
-		Play:     play,
 		Edit:     data.Edit,
 		FileName: filepath.Base(filename),
 		Ext:      filepath.Ext(filename),
