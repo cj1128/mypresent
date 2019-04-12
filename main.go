@@ -81,14 +81,22 @@ func mainHandler(w http.ResponseWriter, r *http.Request) {
 	// temp, refresh templates everytime
 	initTemplates(opts.resourcePath)
 
-	if r.URL.Path == "/favicon.ico" {
+	path := r.URL.Path
+
+	if path == "/favicon.ico" {
 		http.NotFound(w, r)
 		return
 	}
 
-	if r.URL.Path == "/" || r.URL.Path == "/index.html" {
+	if path == "/" || path == "/index.html" {
 		handleIndex(w, r)
 		return
 	}
 
+	if isSlide(path) {
+		handleSlide(w, r)
+		return
+	}
+
+	http.NotFound(w, r)
 }

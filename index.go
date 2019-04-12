@@ -75,14 +75,20 @@ func scanDir(dir string) (*indexData, error) {
 }
 
 // fp is relative to contentBase
-func parseIndexSlide(fp string) (*indexSlide, error) {
+func parseSlide(fp string, mode present.ParseMode) (*present.Doc, error) {
 	f, err := os.Open(path.Join(opts.contentBase, fp))
 
 	if err != nil {
 		return nil, errors.Wrapf(err, "could not open file: %s", fp)
 	}
 
-	doc, err := present.Parse(f, fp, present.TitlesOnly)
+	return present.Parse(f, fp, mode)
+}
+
+// fp is relative to contentBase
+func parseIndexSlide(fp string) (*indexSlide, error) {
+	doc, err := parseSlide(fp, present.TitlesOnly)
+
 	if err != nil {
 		return nil, errors.Wrapf(err, "could not parse slide: %s", fp)
 	}
