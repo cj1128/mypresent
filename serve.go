@@ -3,12 +3,14 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"html/template"
 	"net/http"
 	"path/filepath"
 	"strings"
 	"time"
 
 	"github.com/cj1128/mypresent/present"
+	"github.com/k0kubun/pp"
 	"github.com/kataras/golog"
 )
 
@@ -29,7 +31,7 @@ func serveContent() {
 
 	golog.Infof("server started, port: %d, host: %s", opts.port, opts.host)
 
-	if present.NotesEnabled {
+	if opts.notesEnabled {
 		golog.Info("notes are enabled, press 'N' from the browser to display them.")
 	}
 
@@ -43,7 +45,8 @@ func mainHandler(w http.ResponseWriter, r *http.Request) {
 	path := r.URL.Path
 
 	if path == "/favicon.ico" {
-		http.NotFound(w, r)
+		buf, _ := getAsset("static/favicon.ico")
+		http.ServeContent(w, r, "favicon.ico", time.Now(), bytes.NewReader(buf))
 		return
 	}
 
@@ -58,6 +61,23 @@ func mainHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.NotFound(w, r)
+}
+
+func handleSlide(w http.ResponseWriter, r *http.Request) {
+	doc, err := parseSlide(r.URL.Path, present.FullMode)
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	pp.Println(doc)
+
+	slideTemplate.Execute(w, struct {
+		*present.Doc
+		Template     *template.Template
+		NotesEnabled bool
+	}{doc, slideTemplate, opts.notesEnabled})
 }
 
 func isSlide(path string) bool {

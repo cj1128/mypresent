@@ -18,6 +18,7 @@ var (
 		resourcePath string
 		contentBase  string
 		output       string
+		notesEnabled bool
 	}
 
 	indexTemplate *template.Template
@@ -49,7 +50,7 @@ func parseFlags() string {
 
 	serve.Flag("notes", "enable presenter notes (press 'N' to display").
 		Default("false").
-		BoolVar(&present.NotesEnabled)
+		BoolVar(&opts.notesEnabled)
 
 	// build flags
 	build := kingpin.Command("build", "Generate output")
@@ -63,17 +64,15 @@ func parseFlags() string {
 }
 
 func initTemplates() {
-	action, err := initTemplate("tmpl/action.tmpl", present.Template())
+	var err error
+	parent := present.Template()
+
+	slideTemplate, err = initTemplate("tmpl/slide.tmpl", parent)
 	if err != nil {
 		golog.Fatal(err)
 	}
 
-	slideTemplate, err = initTemplate("tmpl/slide.tmpl", action)
-	if err != nil {
-		golog.Fatal(err)
-	}
-
-	indexTemplate, err = initTemplate("tmpl/index.tmpl", action)
+	indexTemplate, err = initTemplate("tmpl/index.tmpl", parent)
 	if err != nil {
 		golog.Fatal(err)
 	}

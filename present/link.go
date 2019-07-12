@@ -11,10 +11,6 @@ import (
 	"strings"
 )
 
-func init() {
-	Register("link", parseLink)
-}
-
 type Link struct {
 	URL   *url.URL
 	Label string

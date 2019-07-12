@@ -7,10 +7,6 @@ import (
 	"strings"
 )
 
-func init() {
-	Register("html", parseHTML)
-}
-
 func parseHTML(ctx *Context, fileName string, lineno int, text string) (Elem, error) {
 	p := strings.Fields(text)
 	if len(p) != 2 {

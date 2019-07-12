@@ -9,10 +9,6 @@ import (
 	"strings"
 )
 
-func init() {
-	Register("video", parseVideo)
-}
-
 type Video struct {
 	URL        string
 	SourceType string

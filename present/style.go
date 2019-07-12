@@ -26,10 +26,6 @@ import (
 		<i>this is italic</i>!
 */
 
-func init() {
-	funcs["style"] = Style
-}
-
 // Style returns s with HTML entities escaped and font indicators turned into
 // HTML font tags.
 func Style(s string) template.HTML {

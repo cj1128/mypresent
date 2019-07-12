@@ -6,10 +6,6 @@ package present
 
 import "strings"
 
-func init() {
-	Register("caption", parseCaption)
-}
-
 type Caption struct {
 	Text string
 }

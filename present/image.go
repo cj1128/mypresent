@@ -9,10 +9,6 @@ import (
 	"strings"
 )
 
-func init() {
-	Register("image", parseImage)
-}
-
 type Image struct {
 	URL    string
 	Width  int

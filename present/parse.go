@@ -19,16 +19,26 @@ import (
 
 var (
 	parsers = make(map[string]ParseFunc)
-	funcs   = template.FuncMap{}
 )
 
 func init() {
-	funcs["elem"] = renderElem
-	funcs["pagenum"] = pageNum
+	parsers[".code"] = parseCode
+	parsers[".link"] = parseLink
+	parsers[".iframe"] = parseIframe
+	parsers[".html"] = parseHTML
+	parsers[".caption"] = parseCaption
+	parsers[".image"] = parseImage
+	parsers[".video"] = parseVideo
 }
 
 // Template returns an empty template with the action functions in its FuncMap.
 func Template() *template.Template {
+	funcs := template.FuncMap{}
+
+	funcs["elem"] = renderElem
+	funcs["pagenum"] = pageNum
+	funcs["style"] = Style
+
 	return template.New("").Funcs(funcs)
 }
 
@@ -42,14 +52,21 @@ type Doc struct {
 	Sections   []Section
 }
 
-// Render renders the doc to the given writer using the provided template.
-func (d *Doc) Render(w io.Writer, t *template.Template) error {
-	data := struct {
-		*Doc
-		Template     *template.Template
-		NotesEnabled bool
-	}{d, t, NotesEnabled}
-	return t.ExecuteTemplate(w, "root", data)
+// Section represents a section of a document (such as a presentation slide)
+// comprising a title and a list of elements.
+type Section struct {
+	Number  []int
+	Title   string
+	Elem    []Elem
+	Notes   []string
+	Classes []string
+	Styles  []string
+}
+
+// Elem defines the interface for a present element. That is, something that
+// can provide the name of the template used to render the element.
+type Elem interface {
+	TemplateName() string
 }
 
 // Render renders the section to the given writer using the provided template.
@@ -62,27 +79,6 @@ func (s *Section) Render(w io.Writer, t *template.Template) error {
 }
 
 type ParseFunc func(ctx *Context, fileName string, lineNumber int, inputLine string) (Elem, error)
-
-// Register binds the named action, which does not begin with a period, to the
-// specified parser to be invoked when the name, with a period, appears in the
-// present input text.
-func Register(name string, parser ParseFunc) {
-	if len(name) == 0 || name[0] == ';' {
-		panic("bad name in Register: " + name)
-	}
-	parsers["."+name] = parser
-}
-
-// Section represents a section of a document (such as a presentation slide)
-// comprising a title and a list of elements.
-type Section struct {
-	Number  []int
-	Title   string
-	Elem    []Elem
-	Notes   []string
-	Classes []string
-	Styles  []string
-}
 
 // HTMLAttributes for the section
 func (s Section) HTMLAttributes() template.HTMLAttr {
@@ -129,33 +125,6 @@ func (s Section) FormattedNumber() string {
 
 func (s Section) TemplateName() string { return "section" }
 
-// Elem defines the interface for a present element. That is, something that
-// can provide the name of the template used to render the element.
-type Elem interface {
-	TemplateName() string
-}
-
-// renderElem implements the elem template function, used to render
-// sub-templates.
-func renderElem(t *template.Template, e Elem) (template.HTML, error) {
-	var data interface{} = e
-	if s, ok := e.(Section); ok {
-		data = struct {
-			Section
-			Template *template.Template
-		}{s, t}
-	}
-	return execTemplate(t, e.TemplateName(), data)
-}
-
-// pageNum derives a page number from a section.
-func pageNum(s Section, offset int) int {
-	if len(s.Number) == 0 {
-		return offset
-	}
-	return s.Number[0] + offset
-}
-
 // execTemplate is a helper to execute a template and return the output as a
 // template.HTML value.
 func execTemplate(t *template.Template, name string, data interface{}) (template.HTML, error) {
@@ -164,6 +133,7 @@ func execTemplate(t *template.Template, name string, data interface{}) (template
 	if err != nil {
 		return "", err
 	}
+	fmt.Println("!!!", b.String())
 	return template.HTML(b.String()), nil
 }
 
@@ -523,4 +493,25 @@ func parseTime(text string) (t time.Time, ok bool) {
 
 func isSpeakerNote(s string) bool {
 	return strings.HasPrefix(s, ": ")
+}
+
+// renderElem implements the elem template function, used to render
+// sub-templates.
+func renderElem(t *template.Template, e Elem) (template.HTML, error) {
+	var data interface{} = e
+	if s, ok := e.(Section); ok {
+		data = struct {
+			Section
+			Template *template.Template
+		}{s, t}
+	}
+	return execTemplate(t, e.TemplateName(), data)
+}
+
+// pageNum derives a page number from a section.
+func pageNum(s Section, offset int) int {
+	if len(s.Number) == 0 {
+		return offset
+	}
+	return s.Number[0] + offset
 }

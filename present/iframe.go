@@ -9,10 +9,6 @@ import (
 	"strings"
 )
 
-func init() {
-	Register("iframe", parseIframe)
-}
-
 type Iframe struct {
 	URL    string
 	Width  int

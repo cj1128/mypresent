@@ -13,14 +13,6 @@ import (
 	"github.com/k0kubun/pp"
 )
 
-// NotesEnabled specifies whether presenter notes should be displayed in the
-// present user interface.
-var NotesEnabled = false
-
-func init() {
-	Register("code", parseCode)
-}
-
 type Code struct {
 	Text template.HTML
 	Ext  string
