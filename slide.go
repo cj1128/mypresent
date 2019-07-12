@@ -5,7 +5,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/fate-lovely/mypresent/present"
+	"github.com/cj1128/mypresent/present"
 	"github.com/pkg/errors"
 )
 

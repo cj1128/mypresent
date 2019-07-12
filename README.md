@@ -1,12 +1,11 @@
 # Mypresent
 
-在 `golang/tools/present` 基础上修改而来，增加了以下功能：
+在 `golang/tools/present` 基础上做了如下修改：
 
-1. 语法高亮
-2. 导出为一个独立的文件夹
-
+- 增加语法高亮
+- 增加导出为独立文件夹功能
 - 移除 playground 功能
-- 移除 article 模板，只渲染 slide 模板
+- 移除 article 模板，只保留 slide 模板
 
 ## Format
 
@@ -25,14 +24,13 @@ title
 
 ## Static Resource
 
-- action.tmpl
-- index.tmpl
-- slide.tmpl
+- index.css
 
-- dir.css
-- dir.js
-- favicon.ico
-- jquery-ui.js
-- notes.css
-- slides.js
-- styles.css
+tmpl
+  - action.tmpl
+  - index.tmpl
+  - slide.tmpl
+
+hljs
+  - hljs.js
+  - hljs.css

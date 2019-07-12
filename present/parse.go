@@ -424,6 +424,9 @@ func parseSections(ctx *Context, name string, lines *Lines, number []int) ([]Sec
 		}
 		sections = append(sections, section)
 	}
+
+	// pp.Println(sections)
+
 	return sections, nil
 }
 

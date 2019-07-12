@@ -9,7 +9,7 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/fate-lovely/mypresent/present"
+	"github.com/cj1128/mypresent/present"
 )
 
 type indexSlide struct {
@@ -23,6 +23,7 @@ type indexData struct {
 	Children []*indexData
 }
 
+// top level Name of indexData is `.`
 func handleIndex(w http.ResponseWriter, r *http.Request) {
 	data, err := scanDir(".")
 
@@ -82,7 +83,7 @@ func parseSlide(fp string, mode present.ParseMode) (*present.Doc, error) {
 		return nil, errors.Wrapf(err, "could not open file: %s", fp)
 	}
 
-	return present.Parse(f, fp, mode)
+	return present.Parse(f, path.Join(opts.contentBase, fp), mode)
 }
 
 // fp is relative to contentBase

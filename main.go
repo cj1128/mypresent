@@ -1,34 +1,32 @@
 package main
 
 import (
-	"bytes"
-	"fmt"
-	"log"
-	"net/http"
-	"strings"
-	"time"
+	"html/template"
 
-	"github.com/fate-lovely/mypresent/present"
+	"github.com/cj1128/mypresent/present"
+	"github.com/gobuffalo/packr"
+	"github.com/kataras/golog"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
-var opts struct {
-	host         string
-	port         int
-	resourcePath string
-	contentBase  string
-}
+var assetBox = packr.NewBox("./static")
 
-func parseFlags() {
-	kingpin.Flag("host", "server host").
-		Default("127.0.0.1").
-		StringVar(&opts.host)
+var (
+	opts struct {
+		host         string
+		port         int
+		resourcePath string
+		contentBase  string
+		output       string
+	}
 
-	kingpin.Flag("port", "server port").
-		Short('p').
-		Default("3999").
-		IntVar(&opts.port)
+	indexTemplate *template.Template
 
+	slideTemplate *template.Template
+)
+
+func parseFlags() string {
+	// common flags
 	kingpin.Flag("resource", "static resource path, if not provided, use builtin resource").
 		Short('r').
 		StringVar(&opts.resourcePath)
@@ -38,65 +36,56 @@ func parseFlags() {
 		Default(".").
 		StringVar(&opts.contentBase)
 
-	kingpin.Flag("notes", "enable presenter notes (press 'N' to display").
+	// serve flags
+	serve := kingpin.Command("serve", "Start the server").Default()
+	serve.Flag("host", "server host").
+		Default("127.0.0.1").
+		StringVar(&opts.host)
+
+	serve.Flag("port", "server port").
+		Short('p').
+		Default("3999").
+		IntVar(&opts.port)
+
+	serve.Flag("notes", "enable presenter notes (press 'N' to display").
 		Default("false").
 		BoolVar(&present.NotesEnabled)
 
+	// build flags
+	build := kingpin.Command("build", "Generate output")
+	build.Flag("output", "output path").
+		Default("dist").
+		StringVar(&opts.output)
+
 	kingpin.HelpFlag.Short('h')
 
-	kingpin.Parse()
+	return kingpin.Parse()
+}
+
+func initTemplates() {
+	action, err := initTemplate("tmpl/action.tmpl", present.Template())
+	if err != nil {
+		golog.Fatal(err)
+	}
+
+	slideTemplate, err = initTemplate("tmpl/slide.tmpl", action)
+	if err != nil {
+		golog.Fatal(err)
+	}
+
+	indexTemplate, err = initTemplate("tmpl/index.tmpl", action)
+	if err != nil {
+		golog.Fatal(err)
+	}
 }
 
 func main() {
-	parseFlags()
+	cmd := parseFlags()
 
-	if err := initTemplates(opts.resourcePath); err != nil {
-		log.Fatalf("failed to parse templates: %v", err)
+	initTemplates()
+
+	switch cmd {
+	case "serve":
+		serveContent()
 	}
-
-	http.HandleFunc("/static/", func(w http.ResponseWriter, r *http.Request) {
-		name := strings.TrimPrefix(r.URL.Path, "/static/")
-		content, err := Asset(name)
-
-		if err != nil {
-			http.NotFound(w, r)
-			return
-		}
-
-		http.ServeContent(w, r, name, time.Now(), bytes.NewReader(content))
-	})
-
-	http.HandleFunc("/", mainHandler)
-
-	log.Printf("server started, host: %s, port: %d", opts.host, opts.port)
-
-	if present.NotesEnabled {
-		log.Println("notes are enabled, press 'N' from the browser to display them.")
-	}
-
-	log.Fatal(http.ListenAndServe(fmt.Sprintf("%s:%d", opts.host, opts.port), nil))
-}
-
-func mainHandler(w http.ResponseWriter, r *http.Request) {
-	// temp, refresh templates everytime
-	initTemplates(opts.resourcePath)
-
-	path := r.URL.Path
-
-	if path == "/favicon.ico" {
-		http.NotFound(w, r)
-		return
-	}
-
-	if path == "/" || path == "/index.html" {
-		handleIndex(w, r)
-		return
-	}
-
-	if isSlide(path) {
-		handleSlide(w, r)
-		return
-	}
-
-	http.NotFound(w, r)
 }

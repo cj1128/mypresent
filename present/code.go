@@ -1,7 +1,3 @@
-// Copyright 2012 The Go Authors. All rights reserved.
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file.
-
 package present
 
 import (
@@ -13,6 +9,8 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+
+	"github.com/k0kubun/pp"
 )
 
 // NotesEnabled specifies whether presenter notes should be displayed in the
@@ -24,11 +22,9 @@ func init() {
 }
 
 type Code struct {
-	Text     template.HTML
-	Edit     bool   // editable code
-	FileName string // file name
-	Ext      string // file extension
-	Raw      []byte // content of the file
+	Text template.HTML
+	Ext  string
+	raw  []byte // for test
 }
 
 func (c Code) TemplateName() string { return "code" }
@@ -39,11 +35,11 @@ func (c Code) TemplateName() string { return "code" }
 var (
 	highlightRE = regexp.MustCompile(`\s+HL([a-zA-Z0-9_]+)?$`)
 	hlCommentRE = regexp.MustCompile(`(.+) // HL(.*)$`)
-	codeRE      = regexp.MustCompile(`\.code\s+((?:(?:-edit|-numbers)\s+)*)([^\s]+)(?:\s+(.*))?$`)
+	codeRE      = regexp.MustCompile(`\.code\s+((?:(?:-numbers)\s+)*)([^\s]+)(?:\s+(.*))?$`)
 )
 
 // parseCode parses a code present directive. Its syntax:
-//   .code [-numbers] [-edit] <filename> [address] [highlight]
+// .code [-numbers] <filename> [address] [highlight]
 func parseCode(ctx *Context, sourceFile string, sourceLine int, cmd string) (Elem, error) {
 	cmd = strings.TrimSpace(cmd)
 
@@ -60,22 +56,24 @@ func parseCode(ctx *Context, sourceFile string, sourceLine int, cmd string) (Ele
 	// Parse the remaining command line.
 	// Arguments:
 	// args[0]: whole match
-	// args[1]:  .code
-	// args[2]: flags ("-edit -numbers")
-	// args[3]: file name
-	// args[4]: optional address
+	// args[1]: flags ("-edit -numbers")
+	// args[2]: file name
+	// args[3]: optional address
 	args := codeRE.FindStringSubmatch(cmd)
-	if len(args) != 5 {
+	fmt.Println(args, len(args))
+	if len(args) != 4 {
 		return nil, fmt.Errorf("%s:%d: syntax error for .code invocation", sourceFile, sourceLine)
 	}
-	_, flags, file, addr := args[1], args[2], args[3], strings.TrimSpace(args[4])
+	flags, file, addr := args[1], args[2], strings.TrimSpace(args[3])
 
 	// Read in code file and (optionally) match address.
 	filename := filepath.Join(filepath.Dir(sourceFile), file)
 	textBytes, err := ctx.ReadFile(filename)
+
 	if err != nil {
 		return nil, fmt.Errorf("%s:%d: %v", sourceFile, sourceLine, err)
 	}
+
 	lo, hi, err := addrToByteRange(addr, 0, textBytes)
 	if err != nil {
 		return nil, fmt.Errorf("%s:%d: %v", sourceFile, sourceLine, err)
@@ -99,6 +97,15 @@ func parseCode(ctx *Context, sourceFile string, sourceLine int, cmd string) (Ele
 
 	lines := codeLines(textBytes, lo, hi)
 
+	pp.Println(lines)
+
+	var b strings.Builder
+
+	for _, line := range lines {
+		b.WriteString(line.L)
+		b.WriteRune('\n')
+	}
+
 	data := &codeTemplateData{
 		Lines:   formatLines(lines, highlight),
 		Edit:    strings.Contains(flags, "-edit"),
@@ -110,11 +117,9 @@ func parseCode(ctx *Context, sourceFile string, sourceLine int, cmd string) (Ele
 		return nil, err
 	}
 	return Code{
-		Text:     template.HTML(buf.String()),
-		Edit:     data.Edit,
-		FileName: filepath.Base(filename),
-		Ext:      filepath.Ext(filename),
-		Raw:      rawCode(lines),
+		Text: template.HTML(b.String()),
+		Ext:  ".go",
+		raw:  rawCode(lines),
 	}, nil
 }
 
@@ -187,6 +192,7 @@ type codeLine struct {
 // It discards lines that end in "OMIT".
 func codeLines(src []byte, start, end int) (lines []codeLine) {
 	startLine := 1
+
 	for i, b := range src {
 		if i == start {
 			break
@@ -195,7 +201,9 @@ func codeLines(src []byte, start, end int) (lines []codeLine) {
 			startLine++
 		}
 	}
+
 	s := bufio.NewScanner(bytes.NewReader(src[start:end]))
+
 	for n := startLine; s.Scan(); n++ {
 		l := s.Text()
 		if strings.HasSuffix(l, "OMIT") {
