@@ -44,12 +44,11 @@ func Template() *template.Template {
 
 // Doc represents an entire document.
 type Doc struct {
-	Title      string
-	Subtitle   string
-	Time       time.Time
-	Misc       []string
-	TitleNotes []string
-	Sections   []Section
+	Title    string
+	Subtitle string
+	Time     time.Time
+	Misc     []string
+	Sections []Section
 }
 
 // Section represents a section of a document (such as a presentation slide)
@@ -133,7 +132,6 @@ func execTemplate(t *template.Template, name string, data interface{}) (template
 	if err != nil {
 		return "", err
 	}
-	fmt.Println("!!!", b.String())
 	return template.HTML(b.String()), nil
 }
 
@@ -199,23 +197,6 @@ func (l *Lines) nextNonEmpty() (text string, ok bool) {
 		}
 		if len(text) > 0 {
 			break
-		}
-	}
-
-	return
-}
-
-// nextNonNote returns next non-note line, could be empty line
-func (l *Lines) nextNonNote() (text string, ok bool) {
-	for {
-		text, ok = l.next()
-
-		if !ok {
-			return
-		}
-
-		if !isSpeakerNote(text) {
-			return
 		}
 	}
 
@@ -288,28 +269,34 @@ func lesserHeading(text, prefix string) bool {
 // number (a nil number indicates the top level).
 func parseSections(ctx *Context, name string, lines *Lines, number []int) ([]Section, error) {
 	var sections []Section
+
 	for i := 1; ; i++ {
 		// Next non-empty line is title.
 		text, ok := lines.nextNonEmpty()
-		for ok && text == "" {
-			text, ok = lines.next()
-		}
+
 		if !ok {
 			break
 		}
+
 		prefix := strings.Repeat("*", len(number)+1)
+
 		if !strings.HasPrefix(text, prefix+" ") {
 			lines.back()
 			break
 		}
+
 		section := Section{
 			Number: append(append([]int{}, number...), i),
 			Title:  text[len(prefix)+1:],
 		}
+
 		text, ok = lines.nextNonEmpty()
+
 		for ok && !lesserHeading(text, prefix) {
 			var e Elem
+
 			r, _ := utf8.DecodeRuneInString(text)
+
 			switch {
 			case unicode.IsSpace(r):
 				i := strings.IndexFunc(text, func(r rune) bool {
@@ -332,6 +319,7 @@ func parseSections(ctx *Context, name string, lines *Lines, number []int) ([]Sec
 				pre = strings.Replace(pre, "\t", "    ", -1) // browsers treat tabs badly
 				pre = strings.TrimRightFunc(pre, unicode.IsSpace)
 				e = Text{Lines: []string{pre}, Pre: true}
+
 			case strings.HasPrefix(text, "- "):
 				var b []string
 				for ok && strings.HasPrefix(text, "- ") {
@@ -340,8 +328,10 @@ func parseSections(ctx *Context, name string, lines *Lines, number []int) ([]Sec
 				}
 				lines.back()
 				e = List{Bullet: b}
+
 			case isSpeakerNote(text):
 				section.Notes = append(section.Notes, text[2:])
+
 			case strings.HasPrefix(text, prefix+"* "):
 				lines.back()
 				subsecs, err := parseSections(ctx, name, lines, section.Number)
@@ -351,6 +341,7 @@ func parseSections(ctx *Context, name string, lines *Lines, number []int) ([]Sec
 				for _, ss := range subsecs {
 					section.Elem = append(section.Elem, ss)
 				}
+
 			case strings.HasPrefix(text, "."):
 				args := strings.Fields(text)
 				if args[0] == ".background" {
@@ -367,6 +358,7 @@ func parseSections(ctx *Context, name string, lines *Lines, number []int) ([]Sec
 					return nil, err
 				}
 				e = t
+
 			default:
 				var l []string
 				for ok && strings.TrimSpace(text) != "" {
@@ -384,44 +376,35 @@ func parseSections(ctx *Context, name string, lines *Lines, number []int) ([]Sec
 					e = Text{Lines: l}
 				}
 			}
+
 			if e != nil {
 				section.Elem = append(section.Elem, e)
 			}
+
 			text, ok = lines.nextNonEmpty()
 		}
+
 		if isHeading.MatchString(text) {
 			lines.back()
 		}
+
 		sections = append(sections, section)
 	}
-
-	// pp.Println(sections)
 
 	return sections, nil
 }
 
 func parseHeader(doc *Doc, lines *Lines) error {
-	// get title notes
-	for i := lines.line; i < len(lines.text); i++ {
-		if strings.HasPrefix(lines.text[i], "*") {
-			break
-		}
-
-		if isSpeakerNote(lines.text[i]) {
-			doc.TitleNotes = append(doc.TitleNotes, lines.text[i][2:])
-		}
-	}
-
 	// first non-empty line starts header.
 	ok := false
-	doc.Title, ok = lines.nextNonNote()
+	doc.Title, ok = lines.nextNonEmpty()
 
 	if !ok {
 		return errors.New("unexpected EOF; expected title")
 	}
 
 	for {
-		text, ok := lines.nextNonNote()
+		text, ok := lines.next()
 
 		if !ok {
 			break
@@ -447,7 +430,7 @@ func parseMisc(lines *Lines) []string {
 	var result []string
 
 	for {
-		text, ok := lines.nextNonNote()
+		text, ok := lines.nextNonEmpty()
 
 		if !ok {
 			break
@@ -460,7 +443,6 @@ func parseMisc(lines *Lines) []string {
 		}
 
 		result = append(result, text)
-
 	}
 
 	return result

@@ -1,6 +1,8 @@
 {{ define "section" }}
-  <h{{len .Number}} id="TOC_{{.FormattedNumber}}">{{.FormattedNumber}} {{.Title}}</h{{len .Number}}>
-  {{range .Elem}}{{elem $.Template .}}{{end}}
+  <h{{ len .Number }} id="TOC_{{ .FormattedNumber }}">{{ .FormattedNumber }} {{ .Title }}</h{{ len .Number }}>
+  {{ range .Elem }}
+    {{ elem $.Template . }}
+  {{ end }}
 {{ end }}
 
 {{ define "list" }}
@@ -35,40 +37,65 @@
 {{ define "code" }}
   <pre>
     <code>
-      {{ .Text }}
+{{ .Text }}
     </code>
   </pre>
 {{ end }}
 
 {{ define "image" }}
   <div class="image">
-    <img src="{{ .URL }}" {{ with .Height }} height="{{ . }}" {{end}} {{ with .Width }} width="{{ . }}" {{end}}>
+    <img src="{{ .URL }}" {{ with .Height }} height="{{ . }}" {{ end }} {{ with .Width }} width="{{ . }}" {{ end }}>
   </div>
 {{ end }}
 
 {{define "video"}}
-<div class="video">
-  <video {{with .Height}} height="{{.}}"{{end}}{{with .Width}} width="{{.}}"{{end}} controls>
-    <source src="{{.URL}}" type="{{.SourceType}}">
-  </video>
-</div>
-{{end}}
+  <div class="video">
+    <video
+      {{ with .Height }} height="{{ . }}" {{ end }}
+      {{ with .Width }} width="{{ . }}" {{ end }}
+      controls
+    >
+      <source src="{{ .URL }}" type="{{ .SourceType }}">
+    </video>
+  </div>
+{{ end }}
 
-{{define "background"}}
+{{ define "background" }}
 <div class="background">
-  <img src="{{.URL}}">
+  <img src="{{ .URL }}">
 </div>
-{{end}}
+{{ end }}
 
-{{define "iframe"}}
-<iframe src="{{.URL}}"{{with .Height}} height="{{.}}"{{end}}{{with .Width}} width="{{.}}"{{end}}></iframe>
-{{end}}
+{{ define "iframe" }}
+  <iframe
+    src="{{ .URL }}"
+    {{ with .Height }} height="{{ . }}" {{ end }}
+    {{ with .Width }} width="{{ . }}" {{ end }}
+  >
+  </iframe>
+{{ end }}
 
-{{define "link"}}<p class="link"><a href="{{.URL}}" target="_blank">{{style .Label}}</a></p>{{end}}
+{{ define "link" }}
+  <p class="link">
+    <a href="{{ .URL }}" target="_blank">
+      {{style .Label}}
+    </a>
+  </p>
+{{ end }}
 
-{{define "html"}}{{.HTML}}{{end}}
+{{ define "html" }}
+  {{ .HTML }}
+{{ end }}
 
-{{define "caption"}}<figcaption>{{style .Text}}</figcaption>{{end}}
+{{ define "caption" }}
+  <figcaption>
+    {{ style .Text }}
+  </figcaption>
+{{ end }}
+
+{{ define "newline" }}
+<br />
+{{ end }}
 
 <!DOCTYPE html>
 <html>
@@ -76,6 +103,7 @@
     <title>{{ .Title }}</title>
     <meta charset="utf-8">
     <script src="/static/hljs/hljs.js"></script>
+    <link rel="icon" href="/static/favicon.ico" type="image/x-icon"/>
     <link rel="stylesheet" type="text/css" href="/static/hljs/hljs.css">
     <script type="text/javascript">
       hljs.initHighlightingOnLoad()
@@ -160,7 +188,3 @@
     </div>
   </body>
 </html>
-
-{{ define "newline" }}
-<br />
-{{ end }}

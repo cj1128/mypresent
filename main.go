@@ -55,6 +55,7 @@ func parseFlags() string {
 	// build flags
 	build := kingpin.Command("build", "Generate output")
 	build.Flag("output", "output path").
+		Short('o').
 		Default("dist").
 		StringVar(&opts.output)
 
@@ -86,5 +87,8 @@ func main() {
 	switch cmd {
 	case "serve":
 		serveContent()
+
+	case "build":
+		buildContent()
 	}
 }

@@ -52,7 +52,6 @@ func parseCode(ctx *Context, sourceFile string, sourceLine int, cmd string) (Ele
 	// args[2]: file name
 	// args[3]: optional address
 	args := codeRE.FindStringSubmatch(cmd)
-	fmt.Println(args, len(args))
 	if len(args) != 4 {
 		return nil, fmt.Errorf("%s:%d: syntax error for .code invocation", sourceFile, sourceLine)
 	}
