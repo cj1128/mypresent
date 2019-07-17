@@ -74,7 +74,7 @@ Word:
 			open += "<b>"
 			close = "</b>"
 		case '`':
-			open += "<code>"
+			open += `<code class="inline">`
 			close = "</code>"
 		}
 		// Closing marker must be at the end of the token or else followed by punctuation.

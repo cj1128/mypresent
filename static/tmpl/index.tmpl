@@ -28,7 +28,9 @@
           {{ end }}
 
           {{ range .Children }}
-            {{ template "indexblock" . }}
+            {{ if .Slides }}
+              {{ template "indexblock" . }}
+            {{ end }}
           {{ end }}
         {{ end }}
       </section>

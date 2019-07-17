@@ -139,6 +139,7 @@ func execTemplate(t *template.Template, name string, data interface{}) (template
 type Text struct {
 	Lines []string
 	Pre   bool
+	Lang  string // lang code for pre text
 }
 
 func (t Text) TemplateName() string { return "text" }
@@ -298,28 +299,40 @@ func parseSections(ctx *Context, name string, lines *Lines, number []int) ([]Sec
 			r, _ := utf8.DecodeRuneInString(text)
 
 			switch {
+			// pre text
 			case unicode.IsSpace(r):
 				i := strings.IndexFunc(text, func(r rune) bool {
 					return !unicode.IsSpace(r)
 				})
+
 				if i < 0 {
 					break
 				}
+
 				indent := text[:i]
+
 				var s []string
+				var lang string
 				for ok && (strings.HasPrefix(text, indent) || text == "") {
 					if text != "" {
 						text = text[i:]
 					}
-					s = append(s, text)
+
+					if len(s) == 0 && strings.HasPrefix(text, "#lang ") {
+						lang = text[6:]
+					} else {
+						s = append(s, text)
+					}
+
 					text, ok = lines.next()
 				}
 				lines.back()
 				pre := strings.Join(s, "\n")
 				pre = strings.Replace(pre, "\t", "    ", -1) // browsers treat tabs badly
 				pre = strings.TrimRightFunc(pre, unicode.IsSpace)
-				e = Text{Lines: []string{pre}, Pre: true}
+				e = Text{Lines: []string{pre}, Pre: true, Lang: lang}
 
+			// list
 			case strings.HasPrefix(text, "- "):
 				var b []string
 				for ok && strings.HasPrefix(text, "- ") {
@@ -332,6 +345,7 @@ func parseSections(ctx *Context, name string, lines *Lines, number []int) ([]Sec
 			case isSpeakerNote(text):
 				section.Notes = append(section.Notes, text[2:])
 
+			// subsection
 			case strings.HasPrefix(text, prefix+"* "):
 				lines.back()
 				subsecs, err := parseSections(ctx, name, lines, section.Number)
@@ -342,6 +356,7 @@ func parseSections(ctx *Context, name string, lines *Lines, number []int) ([]Sec
 					section.Elem = append(section.Elem, ss)
 				}
 
+			// parser
 			case strings.HasPrefix(text, "."):
 				args := strings.Fields(text)
 				if args[0] == ".background" {

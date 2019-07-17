@@ -49,6 +49,7 @@ func parseFlags() string {
 		IntVar(&opts.port)
 
 	serve.Flag("notes", "enable presenter notes (press 'N' to display").
+		Short('n').
 		Default("false").
 		BoolVar(&opts.notesEnabled)
 

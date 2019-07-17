@@ -4,6 +4,7 @@
 
 - 增加语法高亮
 - 增加导出为独立文件夹功能
+- 缩进文本支持指定 language
 - 移除 playground 功能
 - 移除 article 模板，只保留 slide 模板
 
@@ -34,3 +35,7 @@ tmpl
 hljs
   - hljs.js
   - hljs.css
+
+## Code Highlight
+
+https://highlightjs.readthedocs.io/en/latest/css-classes-reference.html

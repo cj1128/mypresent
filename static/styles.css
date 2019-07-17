@@ -234,10 +234,6 @@
     margin-bottom: 100px !important;
   }
 
-  div.code {
-    background: rgb(240, 240, 240);
-  }
-
   /* Add explicit links */
   a:link:after, a:visited:after {
    content: " (" attr(href) ") ";
@@ -308,7 +304,7 @@ h1 {
 
 h2 {
   font-size: 45px;
-  line-height: 45px;
+  line-height: 50px;
 
   position: absolute;
   bottom: 150px;
@@ -355,15 +351,24 @@ div.code {
   margin-top: 20px;
   margin-bottom: 20px;
   overflow: hidden;
-
-  background: rgb(240, 240, 240);
-  border: 1px solid rgb(224, 224, 224);
 }
+div.code code {
+  border-radius: 5px;
+}
+
+code.inline {
+  padding: 2px 8px;
+  background-color: rgba(27, 31, 35, 0.05);
+  border-radius: 5px;
+  display: inline-block;
+  word-break: break-all;
+}
+
 pre {
   margin: 0;
   padding: 0;
 
-  font-family: 'Droid Sans Mono', 'Courier New', monospace;
+  font-family: 'Roboto Mono', 'Droid Sans Mono', 'Courier New', monospace;
   font-size: 18px;
   line-height: 24px;
   letter-spacing: -1px;
@@ -379,7 +384,7 @@ pre.numbers span:before {
 
 code {
   font-size: 95%;
-  font-family: 'Droid Sans Mono', 'Courier New', monospace;
+  font-family: 'Roboto Mono', 'Droid Sans Mono', 'Courier New', monospace;
 
   color: black;
 }
@@ -424,12 +429,6 @@ p.link {
 }
 
 /* Code */
-div.code {
-  outline: 0px solid transparent;
-}
-div.playground {
-  position: relative;
-}
 div.output {
   position: absolute;
   left: 50%;

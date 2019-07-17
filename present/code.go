@@ -9,8 +9,6 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
-
-	"github.com/k0kubun/pp"
 )
 
 type Code struct {
@@ -87,8 +85,6 @@ func parseCode(ctx *Context, sourceFile string, sourceLine int, cmd string) (Ele
 	}
 
 	lines := codeLines(textBytes, lo, hi)
-
-	pp.Println(lines)
 
 	var b strings.Builder
 

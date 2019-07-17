@@ -19,15 +19,15 @@ import (
 
 func serveContent() {
 	http.HandleFunc("/static/", func(w http.ResponseWriter, r *http.Request) {
-		name := strings.TrimPrefix(r.URL.Path, "/static/")
-		content, err := assetBox.Find(name)
+		path := strings.TrimPrefix(r.URL.Path, "/static/")
+		content, err := getAsset(path)
 
 		if err != nil {
 			http.NotFound(w, r)
 			return
 		}
 
-		http.ServeContent(w, r, name, time.Now(), bytes.NewReader(content))
+		http.ServeContent(w, r, path, time.Now(), bytes.NewReader(content))
 	})
 
 	http.HandleFunc("/", mainHandler)
@@ -42,7 +42,6 @@ func serveContent() {
 }
 
 func mainHandler(w http.ResponseWriter, r *http.Request) {
-	// temp, refresh templates everytime
 	initTemplates()
 
 	path := r.URL.Path
@@ -60,6 +59,11 @@ func mainHandler(w http.ResponseWriter, r *http.Request) {
 
 	if isSlide(path) {
 		handleSlide(w, r)
+		return
+	}
+
+	if fileExists(filepath.Join(opts.contentBase, r.URL.Path)) {
+		http.ServeFile(w, r, filepath.Join(opts.contentBase, r.URL.Path))
 		return
 	}
 

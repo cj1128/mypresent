@@ -16,11 +16,7 @@
 {{ define "text" }}
   {{ if .Pre }}
     <div class="code">
-      <pre>
-        {{ range .Lines }}
-          {{ . }}
-        {{ end }}
-      </pre>
+      <pre><code {{ with .Lang }}class="lang-{{ . }}"{{ end }}>{{ range .Lines }}{{ . }}{{ end }}</code></pre>
     </div>
   {{ else }}
     <p>
@@ -35,11 +31,9 @@
 {{ end }}
 
 {{ define "code" }}
-  <pre>
-    <code>
-{{ .Text }}
-    </code>
-  </pre>
+  <div class="code">
+    <pre><code>{{ .Text }}</code></pre>
+  </div>
 {{ end }}
 
 {{ define "image" }}
@@ -118,7 +112,6 @@
     {{ if .NotesEnabled }}
       <script>
         var sections = {{ .Sections }};
-        var titleNotes = {{ .TitleNotes }}
       </script>
 
       <script src="/static/note.js"></script>
