@@ -9,6 +9,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"sort"
 	"strings"
 	"time"
 
@@ -103,14 +104,16 @@ func isSlide(path string) bool {
 	return filepath.Ext(path) == ".slide"
 }
 
-type indexSlide struct {
-	Name string
-	Path string
+type slideData struct {
+	Name  string
+	Cover string
+	Path  string
+	Time  time.Time
 }
 
 type indexData struct {
 	Name     string // name of the directory
-	Slides   []*indexSlide
+	Slides   []*slideData
 	Children []*indexData
 }
 
@@ -126,15 +129,37 @@ func handleIndex(w http.ResponseWriter, r *http.Request) {
 }
 
 func getIndexHTML() ([]byte, error) {
-	data, err := scanDir(".")
+	id, err := scanDir(".")
 
 	if err != nil {
 		return nil, errors.Wrap(err, "could not scan dir")
 	}
 
+	var allSlides []*slideData // sorted by time
+
+	var f func(id *indexData)
+	f = func(id *indexData) {
+		for _, slide := range id.Slides {
+			allSlides = append(allSlides, slide)
+		}
+
+		for _, c := range id.Children {
+			f(c)
+		}
+	}
+
+	f(id)
+
+	sort.Slice(allSlides, func(i, j int) bool {
+		return allSlides[i].Time.After(allSlides[j].Time)
+	})
+
 	buf := &bytes.Buffer{}
 
-	if err := indexTemplate.Execute(buf, data); err != nil {
+	if err := indexTemplate.Execute(buf, struct {
+		All   []*slideData
+		Index *indexData
+	}{allSlides, id}); err != nil {
 		return nil, errors.Wrap(err, "could not execute template")
 	}
 
@@ -194,15 +219,17 @@ func parseSlide(fp string, mode present.ParseMode) (*present.Doc, error) {
 }
 
 // fp is relative to contentBase
-func parseIndexSlide(fp string) (*indexSlide, error) {
+func parseIndexSlide(fp string) (*slideData, error) {
 	doc, err := parseSlide(fp, present.TitlesOnly)
 
 	if err != nil {
 		return nil, errors.Wrapf(err, "could not parse slide: %s", fp)
 	}
 
-	return &indexSlide{
-		Name: doc.Title,
-		Path: fp,
+	return &slideData{
+		Name:  doc.Title,
+		Cover: doc.Cover,
+		Path:  fp,
+		Time:  doc.Time,
 	}, nil
 }

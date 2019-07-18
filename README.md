@@ -15,6 +15,7 @@
 title
 [subtitle]
 [time](format: "15:04 2 Jan 2006" or "2 Jan 2006")
+[cover image]
 <blank>
 [misc info]
 [sections]

@@ -1,39 +1,56 @@
 body {
-  margin: 0;
+  background: #F9F9F9;
   font-size: 16px;
-  font-family: Helvetica, PingFang SC, Arial, sans-serif;
 }
 
-main {
-  width: 600px;
+.container {
+  max-width: 1024px;
   margin: auto;
 }
 
-h1 {
-  color: #375EAB;
-  font-size: 25px;
-  margin: 30px 0;
+header > h1 {
+  text-align: center;
+  font-family: "Nanum Pen Script";
+  font-size: 80px;
+  color: #484848;
 }
 
-ul {
-  margin-bottom: 30px;
+.items {
+  display: grid;
+  padding: 0 20px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-column-gap: 5%;
+  grid-row-gap: 30px;
+  margin: 50px auto;
 }
 
-main > section > ul {
-  padding-left: 18px;
-}
-
-a {
-  color: #375EAB;
+.item {
   text-decoration: none;
-}
-a:hover {
-  text-decoration: underline;
+  box-shadow: 0 0px 5px 1px #ddd;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
 }
 
-section > h2 {
-  background: #E0EBF5;
-  color: #375EAB;
-  font-size: 20px;
-  padding: 5px 10px;
+.item:hover {
+  box-shadow: 0 0px 6px 2px #bbb;
+}
+
+.item > div {
+  background-size: cover;
+  background-position: 50% 50%;
+  padding-top: 100%;
+}
+
+.item > p {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;;
+  background: white;
+  margin: 0;
+  padding: 20px 0;
+  font-family: Roboto;
+  text-align: center;
+  font-size: 1.2rem;
 }

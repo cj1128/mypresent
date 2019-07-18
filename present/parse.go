@@ -47,6 +47,7 @@ type Doc struct {
 	Title    string
 	Subtitle string
 	Time     time.Time
+	Cover    string
 	Misc     []string
 	Sections []Section
 }
@@ -427,6 +428,11 @@ func parseHeader(doc *Doc, lines *Lines) error {
 
 		if text == "" {
 			break
+		}
+
+		if strings.HasPrefix(text, ".cover ") {
+			doc.Cover = text[len(".cover "):]
+			continue
 		}
 
 		if t, ok := parseTime(text); ok {
