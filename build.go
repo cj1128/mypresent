@@ -45,18 +45,6 @@ func buildContent() {
 		return path[:len(path)-len(".slide")] + ".html"
 	}
 
-	// change path from `.slide` to `.html`
-	var modifyIndexData func(id *indexData)
-	modifyIndexData = func(id *indexData) {
-		for _, s := range id.Slides {
-			s.Path = modifyPath(s.Path)
-		}
-
-		for _, i := range id.Children {
-			modifyIndexData(i)
-		}
-	}
-
 	// create dir
 	mkdir(".")
 
@@ -113,10 +101,18 @@ func buildContent() {
 	if err != nil {
 		golog.Fatal(err)
 	}
-	modifyIndexData(data)
+
+	allSlides := getAllSlides(data)
+
+	for _, slide := range allSlides {
+		slide.Path = modifyPath(slide.Path)
+	}
 
 	buf := &bytes.Buffer{}
-	if err := indexTemplate.Execute(buf, data); err != nil {
+	if err := indexTemplate.Execute(buf, struct {
+		Index *indexData
+		All   []*slideData
+	}{data, allSlides}); err != nil {
 		golog.Fatal(err)
 	}
 

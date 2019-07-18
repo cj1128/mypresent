@@ -128,19 +128,13 @@ func handleIndex(w http.ResponseWriter, r *http.Request) {
 	w.Write(content)
 }
 
-func getIndexHTML() ([]byte, error) {
-	id, err := scanDir(".")
-
-	if err != nil {
-		return nil, errors.Wrap(err, "could not scan dir")
-	}
-
-	var allSlides []*slideData // sorted by time
+func getAllSlides(id *indexData) []*slideData {
+	var result []*slideData // sorted by time
 
 	var f func(id *indexData)
 	f = func(id *indexData) {
 		for _, slide := range id.Slides {
-			allSlides = append(allSlides, slide)
+			result = append(result, slide)
 		}
 
 		for _, c := range id.Children {
@@ -150,9 +144,21 @@ func getIndexHTML() ([]byte, error) {
 
 	f(id)
 
-	sort.Slice(allSlides, func(i, j int) bool {
-		return allSlides[i].Time.After(allSlides[j].Time)
+	sort.Slice(result, func(i, j int) bool {
+		return result[i].Time.After(result[j].Time)
 	})
+
+	return result
+}
+
+func getIndexHTML() ([]byte, error) {
+	id, err := scanDir(".")
+
+	if err != nil {
+		return nil, errors.Wrap(err, "could not scan dir")
+	}
+
+	allSlides := getAllSlides(id)
 
 	buf := &bytes.Buffer{}
 
