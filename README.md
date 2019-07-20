@@ -1,6 +1,6 @@
 # Mypresent
 
-A tool forked from `golang/tools/present`, made following modifications:
+My tool for presentation forked from `golang/tools/present` and used to build [slides.cjting.me](https://slides.cjting.me).
 
 - Support syntax highlight
 - Can generate static html files
@@ -41,19 +41,21 @@ title
 
 ## Static Resource
 
-- index.css
-- note.js
-- slide.js
-- slide.css
-- favicon.ico
+We can use `-r dir` to provide custom resources. Mypresent needs these files tow work. If one cann't be found at the directory, it will use the default shipped one.
 
-tmpl
-  - index.tmpl
-  - slide.tmpl
-
-hljs
-  - hljs.js
-  - hljs.css
+```text
+├── favicon.ico
+├── hljs
+│   ├── hljs.css
+│   └── hljs.js
+├── index.css
+├── note.js
+├── slide.css
+├── slide.js
+└── tmpl
+    ├── index.tmpl
+    └── slide.tmpl
+```
 
 ## Syntax Highlight
 
