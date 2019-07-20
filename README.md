@@ -1,35 +1,53 @@
 # Mypresent
 
-在 `golang/tools/present` 基础上做了如下修改：
+A tool forked from `golang/tools/present`, made following modifications:
 
-- 增加语法高亮
-- 增加导出为独立文件夹功能
-- 缩进文本支持指定 language
-- 移除 playground 功能
-- 移除 article 模板，只保留 slide 模板
+- Support syntax highlight
+- Can generate static html files
+- Indented code can specify language
+- Remove all functions except for slide
 
-## Format
+```bash
+$ mypresent --help
+usage: mypresent [<flags>] <command> [<args> ...]
 
-### slide format
+Flags:
+  -h, --help               Show context-sensitive help (also try --help-long and
+                           --help-man).
+  -r, --resource=RESOURCE  static resource path, if not provided, use builtin
+                           resource
+  -c, --content="."        presentation content path
+
+Commands:
+  help [<command>...]
+    Show help.
+
+  serve* [<flags>]
+    Start the server
+
+  build [<flags>]
+    Generate output
+```
+
+## Slide Format
 
 title
 [subtitle]
 [time](format: "15:04 2 Jan 2006" or "2 Jan 2006")
-[cover image]
+[cover image](format: .cover [url])
 <blank>
 [misc info]
 [sections]
 
-`*` title
-`: ` speaker note
-`#` comments
-
 ## Static Resource
 
 - index.css
+- note.js
+- slide.js
+- slide.css
+- favicon.ico
 
 tmpl
-  - action.tmpl
   - index.tmpl
   - slide.tmpl
 
@@ -37,6 +55,8 @@ hljs
   - hljs.js
   - hljs.css
 
-## Code Highlight
+## Syntax Highlight
 
-https://highlightjs.readthedocs.io/en/latest/css-classes-reference.html
+Use [highlight.js](https://highlightjs.org) to do syntax highlight.
+
+See all supported languages in [css-class-reference](https://highlightjs.readthedocs.io/en/latest/css-classes-reference.html).

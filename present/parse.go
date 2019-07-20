@@ -44,12 +44,13 @@ func Template() *template.Template {
 
 // Doc represents an entire document.
 type Doc struct {
-	Title    string
-	Subtitle string
-	Time     time.Time
-	Cover    string
-	Misc     []string
-	Sections []Section
+	Title      string
+	Subtitle   string
+	Time       time.Time
+	TitleNotes []string
+	Cover      string
+	Misc       []string
+	Sections   []Section
 }
 
 // Section represents a section of a document (such as a presentation slide)
@@ -428,6 +429,11 @@ func parseHeader(doc *Doc, lines *Lines) error {
 
 		if text == "" {
 			break
+		}
+
+		if isSpeakerNote(text) {
+			doc.TitleNotes = append(doc.TitleNotes, text[2:])
+			continue
 		}
 
 		if strings.HasPrefix(text, ".cover ") {
